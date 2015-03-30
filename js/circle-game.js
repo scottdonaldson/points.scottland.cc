@@ -6,7 +6,7 @@ jitterz.points = [];
 jitterz.numPoints = 100;
 
 var w = window.innerWidth,
-    h = window.innerHeight,
+    h = window.innerHeight - 28,
     c = Math.cos,
     s = Math.sin,
     inc = 2 * Math.PI / jitterz.numPoints;
@@ -95,6 +95,17 @@ function normalizeColor(value) {
     return value;
 }
 
+function writeParagraph(html) {
+    var p = document.createElement('p');
+    p.style.width = (w / 2).toString() + 'px';
+
+    p.innerHTML = html;
+    document.body.appendChild(p);
+
+    p.style.left = (cx - p.clientWidth / 2).toString() + 'px';
+    p.style.top = (cy - p.clientHeight).toString() + 'px';
+}
+
 function setup() {
 
     createCanvas( w, h );
@@ -104,15 +115,9 @@ function setup() {
         jitterz.points.push([cx + r * c(i), cy + r * s(i)]);
     }
 
-    var p = document.createElement('p');
-    p.style.width = (w / 2).toString() + 'px';
+    writeParagraph('Though they tend toward chaos, the points wish to be within the bounded area.');
 
-    p.innerHTML = 'Though they tend toward chaos, the points wish to be ' +
-        'within the bounded area.';
-    document.body.appendChild(p);
-
-    p.style.left = (cx - p.clientWidth / 2).toString() + 'px';
-    p.style.top = (cy - p.clientHeight).toString() + 'px';
+    document.getElementById('info').style.display = 'block';
 
     setTimeout(startTimer, 2000);
 }
@@ -294,7 +299,10 @@ function success() {
     background(0);
     clearInterval(timerInterval);
 
-    writeText('You won!\nIt took you ' + time() + '.');
+    // no more drawing to be done
+    draw = null;
+
+    writeParagraph('The task has been completed.<br>It took you ' + time() + '.');
 
         /* text('Share with your friends:', 20, 140);
 
@@ -303,14 +311,6 @@ function success() {
     }
 
     text('Facebook:', 20, 180); */
-}
-
-function mouseClicked() {
-    /* if ( gameOver ) {
-        if ( mouseX > 20 && mouseX < 300 && mouseY > 150 && mouseY < 180 ) {
-            window.location.href = 'https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fwww.scottland.cc;
-        }
-    } */
 }
 
 function draw() {
