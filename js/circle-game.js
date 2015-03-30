@@ -42,10 +42,10 @@ var levels = [
     },
     {
         shape: function() {
-            rect(cx - r, cy - r / 4, 2 * r, r / 2);
+            rect(cx - r, cy - r / 6, 2 * r, r / 3);
         },
         test: function(px) {
-            return px[0] > cx - r && px[0] < cx + r && px[1] > cy - r / 4 && px[1] < cy + r / 4;
+            return px[0] > cx - r && px[0] < cx + r && px[1] > cy - r / 6 && px[1] < cy + r / 6;
         }
     },
     {
@@ -117,6 +117,7 @@ function setup() {
 
     writeParagraph('Though they tend toward chaos, the points wish to be within the bounded area.');
 
+    // show the info block
     document.getElementById('info').style.display = 'block';
 
     setTimeout(startTimer, 2000);
@@ -229,17 +230,32 @@ function drawLines() {
     ratioInside = numberInside / (jitterz.numPoints * numLoops);
 
     strokeWeight(0);
-    fill(255);
+    fill(200, 0, 0);
 
     // If success is above 99%, set success fill and successTime
     if ( ratioInside >= 0.99 ) {
-        fill(0, 255, 100);
+
+        fill(100, 200, 255);
         if ( !successTime ) successTime = timer;
+
+    } else if ( ratioInside >= 0.9 ) {
+        fill(50, 200, 50);
+    } else if ( ratioInside >= 0.75 ) {
+        fill(255);
+    } else if ( ratioInside >= 0.5 ) {
+        fill(255, 200, 0);
+    } else if ( ratioInside >= 0.25 ) {
+        fill(200, 100, 0);
     }
 
     if ( !!successTime && timer - successTime >= 5 ) {
         currentLevel++;
         successTime = false;
+    }
+
+    if ( successTime ) {
+        fill(255);
+        text((5 - (timer - successTime)).toString() + '...', w / 2 - 20, 45);
     }
 
     rect(w - 40, ( 1 - ratioInside ) * h, w, h);
