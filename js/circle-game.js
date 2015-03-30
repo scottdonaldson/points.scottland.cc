@@ -13,7 +13,7 @@ var w = window.innerWidth,
 
 var cx = w / 2,
     cy = h / 2,
-    r = w > h ? h * 0.25 : w * 0.25,
+    r = w > h ? h * 0.36 : w * 0.36,
     targetR = 0.95 * r,
     numLoops = 10, // number of times to loop around the circle (for a multitude of points)
     closeness = r * 0.75, // how close should the cursor have to be for a point to move toward it
@@ -169,12 +169,6 @@ function time(again) {
 
 function drawLines() {
 
-    clear();
-    background(0);
-
-    levels[currentLevel].shape();
-    time(true);
-
     var pt = 0,
         inc = 2 * Math.PI / jitterz.numPoints,
         dist,
@@ -184,11 +178,29 @@ function drawLines() {
     var r, g, b, a;
     a = 100;
 
+    var targetX, targetY;
+
+    if ( touchIsDown ) {
+        targetX = touchX;
+        targetY = touchY;
+    }
+
+    if ( mouseX && mouseY ) {
+        targetX = mouseX;
+        targetY = mouseY;
+    }
+
+    clear();
+    background(0);
+
+    levels[currentLevel].shape();
+    time(true);
+
     for ( var i = 0; i < numLoops * 2 * Math.PI; i += inc ) {
 
         r = g = b = 255;
 
-        dist = distance(jitterz.points[pt], [mouseX, mouseY]);
+        dist = distance(jitterz.points[pt], [targetX, targetY]);
 
         strokeWeight(1.5);
 
@@ -258,13 +270,13 @@ function drawLines() {
         text((5 - (timer - successTime)).toString() + '...', w / 2 - 20, 45);
     }
 
-    rect(w - 40, ( 1 - ratioInside ) * h, w, h);
+    rect(w - w / 20, ( 1 - ratioInside ) * h, w, h);
 }
 
-function distance(pt, mouse) {
+function distance(pt, target) {
 
-    var dx = mouse[0] - pt[0],
-        dy = mouse[1] - pt[1];
+    var dx = target[0] - pt[0],
+        dy = target[1] - pt[1];
 
     return Math.sqrt( dx * dx + dy * dy );
 }
@@ -277,6 +289,18 @@ function normalize(distance) {
 function jitter() {
     if ( jitterz.points.length > 0 ) {
 
+        var targetX, targetY;
+
+        if ( touchIsDown ) {
+            targetX = touchX;
+            targetY = touchY;
+        }
+
+        if ( mouseX && mouseY ) {
+            targetX = mouseX;
+            targetY = mouseY;
+        }
+
         var dist,
             nd,
             close = 0,
@@ -284,18 +308,18 @@ function jitter() {
 
         jitterz.points.forEach(function(pt) {
 
-            dist = distance(pt, [mouseX, mouseY]);
+            dist = distance(pt, [targetX, targetY]);
             nd = normalize(dist);
 
             pt[0] += ( Math.random() * 2 - 1 ) * jitterFactor;
             pt[1] += ( Math.random() * 2 - 1 ) * jitterFactor;
 
             // weird maths happen if the distance is 0 (since dividing by 0)
-            if ( Math.abs(mouseX - pt[0]) <= 1 && Math.abs(mouseY - pt[1]) <= 1 ) atPoint = true;
+            if ( Math.abs(targetX - pt[0]) <= 1 && Math.abs(targetY - pt[1]) <= 1 ) atPoint = true;
 
             if ( dist < closeness ) {
-                pt[0] += atPoint ? 0 : biasFactor * (mouseX - pt[0]) / nd;
-                pt[1] += atPoint ? 0 : biasFactor * (mouseY - pt[1]) / nd;
+                pt[0] += atPoint ? 0 : biasFactor * (targetX - pt[0]) / nd;
+                pt[1] += atPoint ? 0 : biasFactor * (targetY - pt[1]) / nd;
             }
         });
 
@@ -320,13 +344,6 @@ function success() {
 
     writeParagraph('The task has been completed.<br>It took you ' + time() + '.');
 
-        /* text('Share with your friends:', 20, 140);
-
-    if ( mouseX > 20 && mouseX < 300 && mouseY > 150 && mouseY < 180 ) {
-        fill(0, 0, 255);
-    }
-
-    text('Facebook:', 20, 180); */
 }
 
 function draw() {
