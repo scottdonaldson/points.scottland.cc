@@ -25,7 +25,14 @@
     <script src="js/circle-game.js"></script>
     <style>html, body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.4; margin: 0; padding: 0; overflow: hidden; } p { color: #fff; position: fixed; font-size: 2.5vw; text-align: center; } #info { background: #bbb; display: none; position: fixed; bottom: 0; left: 0; width: 100%; padding: 10px; } a, a:visited { text-decoration: none; color: #33b; } .fb-like { position: relative; top: -2px; margin-right: 20px; } .twitter-share-button { position: relative; top: 3px; }</style>
 </head>
-<body>
+<body style="background: #000;">
+
+    <p id="loading">Loading...</p>
+    <script>(function(){
+        var loading = document.getElementById('loading');
+        loading.style.left = ((window.innerWidth - loading.clientWidth) / 2).toString() + 'px';
+        loading.style.top = ((window.innerHeight - loading.clientHeight) / 2).toString() + 'px';
+    })();</script>
 
     <script>
     window.fbAsyncInit = function() {
@@ -48,7 +55,7 @@
     <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
 
     <div id="info">
-        A project by <a href="https://twitter.com/scottpdonaldson">Scottland</a> using <a href="http://p5js.org" target="_blank">p5.js</a>.
+        Points in Flux | A project by <a href="https://twitter.com/scottpdonaldson">Scottland</a> using <a href="http://p5js.org" target="_blank">p5.js</a>.
         <span style="display: inline-block; width: 20px;"></span>
         <div class="fb-like" data-href="http://points.scottland.cc/" data-layout="button_count" data-action="like" data-show-faces="false" data-share="true"></div>
         <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://points.scottland.cc">Tweet</a>

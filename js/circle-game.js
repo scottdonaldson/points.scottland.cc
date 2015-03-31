@@ -31,6 +31,19 @@ function shapeReset() {
     strokeWeight(0);
 }
 
+function explode() {
+    jitterz.points.forEach(function(pt) {
+        pt[0] += 3 * ( Math.random() * 2 - 1 ) * jitterFactor;
+        pt[1] += 3 * ( Math.random() * 2 - 1 ) * jitterFactor;
+    });
+}
+
+function setExplosion(times) {
+    for ( var i = 0; i < times; i++ ) {
+        setTimeout(explode, i * 30);
+    }
+}
+
 var levels = [
     {
         shape: function() {
@@ -42,10 +55,10 @@ var levels = [
     },
     {
         shape: function() {
-            rect(cx - r, cy - r / 6, 2 * r, r / 3);
+            rect(cx - r, cy - r / 4, 2 * r, r / 2);
         },
         test: function(px) {
-            return px[0] > cx - r && px[0] < cx + r && px[1] > cy - r / 6 && px[1] < cy + r / 6;
+            return px[0] > cx - r && px[0] < cx + r && px[1] > cy - r / 4 && px[1] < cy + r / 4;
         }
     },
     {
@@ -60,14 +73,46 @@ var levels = [
     },
     {
         shape: function() {
-            rect(cx - 3 * r / 4, cy - r / 4, r / 2, r / 2);
-            rect(cx - r / 4, cy - 3 * r / 4, r / 2, 3 * r / 2);
-            rect(cx + r / 4, cy - r / 4, r / 2, r / 2);
+            /* rect(cx - r, cy - r, 2 * r / 3, 2 * r / 3);
+            rect(cx +  r / 3, cy - r, 2 * r / 3, 2 * r / 3);
+            rect(cx - r, cy + r / 3, 2 * r / 3, 2 * r / 3);
+            rect(cx + r / 3, cy + r / 3, 2 * r / 3, 2 * r / 3); */
+
+            ellipse(cx - 2 * r / 3, cy - 2 * r / 3, 3 * r / 4, 3 * r / 4);
+            ellipse(cx + 2 * r / 3, cy - 2 * r / 3, 3 * r / 4, 3 * r / 4);
+            ellipse(cx, cy + 2 * r / 3, 3 * r / 4, 3 * r / 4);
         },
         test: function(px) {
-            var x = Math.abs(px[0] - cx),
+            /* var x = Math.abs(px[0] - cx),
                 y = Math.abs(px[1] - cy);
-            return x < 3 * r / 4 && y < 3 * r / 4 && !( x > r / 4 && y > r / 4 );
+            return x < 3 * r / 4 && x > r / 4 && y < 3 * r / 4 && y > r / 4; */
+            var x = px[0], y = px[1];
+            return distance([x, y], [cx - 2 * r / 3, cy - 2 * r / 3]) < 3 * r / 8 ||
+                distance([x, y], [cx + 2 * r / 3, cy - 2 * r / 3]) < 3 * r / 8 ||
+                distance([x, y], [cx, cy + 2 * r / 3]) < 3 * r / 8;
+        },
+        inAllRegions: function(pts) {
+
+            var inRegions = 0,
+                regions = [
+                    [cx - 2 * r / 3, cy - 2 * r / 3],
+                    [cx + 2 * r / 3, cy - 2 * r / 3],
+                    [cx, cy + 2 * r / 3]
+                ];
+
+            regions.forEach(function(region) {
+                var x, y;
+                for ( var p = 0; p < pts.length; p++ ) {
+                    x = pts[p][0];
+                    y = pts[p][1];
+                    if ( distance([x, y], region) < 3 * r / 8 ) {
+                        inRegions++;
+                        break;
+                    }
+                }
+            });
+
+            return inRegions === regions.length ;
         }
     }
 ];
@@ -95,18 +140,22 @@ function normalizeColor(value) {
     return value;
 }
 
-function writeParagraph(html) {
+function writeParagraph(html, id) {
     var p = document.createElement('p');
     p.style.width = (w / 2).toString() + 'px';
+
+    if ( id ) p.id = id;
 
     p.innerHTML = html;
     document.body.appendChild(p);
 
     p.style.left = (cx - p.clientWidth / 2).toString() + 'px';
-    p.style.top = (cy - p.clientHeight).toString() + 'px';
+    p.style.top = (cy - p.clientHeight / 2).toString() + 'px';
 }
 
 function setup() {
+
+    document.getElementById('loading').style.display = 'none';
 
     createCanvas( w, h );
     background(0);
@@ -115,24 +164,24 @@ function setup() {
         jitterz.points.push([cx + r * c(i), cy + r * s(i)]);
     }
 
-    writeParagraph('Though they tend toward chaos, the points wish to be within the bounded area.');
+    writeParagraph('"If a man has a hundred sheep, and one of them has gone astray, does he not leave the ninety-nine on the mountain and search for the one that is straying?"', 'quote');
 
     // show the info block
     document.getElementById('info').style.display = 'block';
 
-    setTimeout(startTimer, 2000);
+    setTimeout(startTimer, 4000);
 }
 
 function startTimer() {
 
-    var p = document.getElementsByTagName('p')[0];
+    var p = document.getElementById('quote');
     setTimeout(function() {
-        p.innerHTML += '<br>Move them.';
-    }, 4000);
+        //p.innerHTML += '<br>-Christ, <em>Matthew 18:12-14</em>';
+    }, 4500);
 
     setTimeout(function() {
         p.parentNode.removeChild(p);
-    }, 6000);
+    }, 4500);
 
     textFont('Helvetica Neue');
 
@@ -173,7 +222,8 @@ function drawLines() {
         inc = 2 * Math.PI / jitterz.numPoints,
         dist,
         numberInside = 0,
-        ratioInside = 0;
+        ratioInside = 0,
+        inAllRegions = true;
 
     var r, g, b, a;
     a = 100;
@@ -260,17 +310,24 @@ function drawLines() {
         fill(200, 100, 0);
     }
 
-    if ( !!successTime && timer - successTime >= 5 ) {
-        currentLevel++;
-        successTime = false;
-    }
+    if ( levels[currentLevel].inAllRegions ) {
+        inAllRegions = levels[currentLevel].inAllRegions(jitterz.points);
 
-    if ( successTime ) {
-        fill(255);
-        text((5 - (timer - successTime)).toString() + '...', w / 2 - 20, 45);
+        if ( !inAllRegions ) fill(200, 0, 0);
     }
 
     rect(w - w / 20, ( 1 - ratioInside ) * h, w, h);
+
+    if ( !!successTime && timer - successTime >= 5 && inAllRegions ) {
+        currentLevel++;
+        setExplosion(50);
+        successTime = false;
+    }
+
+    if ( successTime && inAllRegions ) {
+        fill(255);
+        text((5 - (timer - successTime)).toString() + '...', w / 2 - 20, 45);
+    }
 }
 
 function distance(pt, target) {
@@ -332,6 +389,10 @@ function keyTyped() {
     if ( key === ' ' ) {
         currentLevel++;
     }
+
+    if ( key === '1' ) {
+        draw = null;
+    }
 }
 
 function success() {
@@ -342,7 +403,7 @@ function success() {
     // no more drawing to be done
     draw = null;
 
-    writeParagraph('The task has been completed.<br>It took you ' + time() + '.');
+    writeParagraph('Rejoice! The task has been completed.<br>It took you ' + time() + '.<br><br>You may <a style="color: #fff; text-decoration: underline;" href="/">start again</a>.');
 
 }
 
