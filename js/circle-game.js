@@ -73,19 +73,11 @@ var levels = [
     },
     {
         shape: function() {
-            /* rect(cx - r, cy - r, 2 * r / 3, 2 * r / 3);
-            rect(cx +  r / 3, cy - r, 2 * r / 3, 2 * r / 3);
-            rect(cx - r, cy + r / 3, 2 * r / 3, 2 * r / 3);
-            rect(cx + r / 3, cy + r / 3, 2 * r / 3, 2 * r / 3); */
-
             ellipse(cx - 2 * r / 3, cy - 2 * r / 3, 3 * r / 4, 3 * r / 4);
             ellipse(cx + 2 * r / 3, cy - 2 * r / 3, 3 * r / 4, 3 * r / 4);
             ellipse(cx, cy + 2 * r / 3, 3 * r / 4, 3 * r / 4);
         },
         test: function(px) {
-            /* var x = Math.abs(px[0] - cx),
-                y = Math.abs(px[1] - cy);
-            return x < 3 * r / 4 && x > r / 4 && y < 3 * r / 4 && y > r / 4; */
             var x = px[0], y = px[1];
             return distance([x, y], [cx - 2 * r / 3, cy - 2 * r / 3]) < 3 * r / 8 ||
                 distance([x, y], [cx + 2 * r / 3, cy - 2 * r / 3]) < 3 * r / 8 ||
@@ -164,30 +156,34 @@ function setup() {
         jitterz.points.push([cx + r * c(i), cy + r * s(i)]);
     }
 
-    writeParagraph('"If a man has a hundred sheep, and one of them has gone astray, does he not leave the ninety-nine on the mountain and search for the one that is straying?"', 'quote');
+    writeParagraph('"If a man has a hundred sheep, and one of them has gone astray, does he not leave ninety-nine on the mountain and search for the one that is straying?"', 'quote');
 
     // show the info block
     document.getElementById('info').style.display = 'block';
 
-    setTimeout(startTimer, 4000);
+    setTimeout(startTimer, 3500);
 }
 
 function startTimer() {
 
     var p = document.getElementById('quote');
+
     setTimeout(function() {
-        //p.innerHTML += '<br>-Christ, <em>Matthew 18:12-14</em>';
-    }, 4500);
+        p.classList.add('small', 'italic');
+        p.innerHTML = 'You are the shepherd.<br>Move the mouse or your finger to draw them into the shaded area.';
+    }, 4000);
 
     setTimeout(function() {
         p.parentNode.removeChild(p);
-    }, 4500);
+    }, 7500);
 
     textFont('Helvetica Neue');
 
-    timerInterval = setInterval(function(){
-        timer++;
-    }, 1000);
+    setTimeout(function(){
+        timerInterval = setInterval(function(){
+            timer++;
+        }, 1000);
+    }, 5000);
 }
 
 function writeText(str) {
